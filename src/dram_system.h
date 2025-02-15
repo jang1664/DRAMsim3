@@ -37,6 +37,10 @@ class BaseDRAMSystem {
     std::function<void(uint64_t req_id)> read_callback_, write_callback_;
     static int total_channels_;
 
+    // accessors for controllers
+    std::vector<Controller *> &GetControllers() { return ctrls_; }
+    Controller *GetController(size_t channel) { return ctrls_[channel]; }
+
    protected:
     uint64_t id_;
     uint64_t last_req_clk_;
@@ -44,6 +48,7 @@ class BaseDRAMSystem {
     Timing timing_;
     uint64_t parallel_cycles_;
     uint64_t serial_cycles_;
+    bool turn_off_=false;
 
 #ifdef THERMAL
     ThermalCalculator thermal_calc_;

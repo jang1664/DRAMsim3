@@ -6,6 +6,7 @@
 #include <random>
 #include <string>
 #include "memory_system.h"
+#include "global_state.h"
 
 namespace dramsim3 {
 
@@ -21,9 +22,14 @@ class CPU {
     void ReadCallBack(uint64_t addr) { return; }
     void WriteCallBack(uint64_t addr) { return; }
     void PrintStats() { memory_system_.PrintStats(); }
+    bool AllTransactionsFinished() { return all_trans_finished_; }
+    bool turnOff() { return memory_system_.turnOff(); }
+
+    MemorySystem &getMemorySystem() { return memory_system_; }
 
    protected:
     MemorySystem memory_system_;
+    bool all_trans_finished_ = false;
     uint64_t clk_;
 };
 

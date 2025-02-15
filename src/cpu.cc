@@ -84,6 +84,8 @@ void TraceBasedCPU::ClockTick() {
                 memory_system_.AddTransaction(trans_.addr, trans_.is_write);
             }
         }
+    } else {
+      all_trans_finished_ = true;
     }
     clk_++;
     return;

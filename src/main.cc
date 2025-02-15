@@ -27,6 +27,10 @@ int main(int argc, const char **argv) {
         {'t', "trace"});
     args::Positional<std::string> config_arg(
         parser, "config", "The config file name (mandatory)");
+    args::Flag is_all_trans_mode(parser, "is_all_trans_mode", "is_all_trans_mode", {'a', "all_trans"});
+    // args::ValueFlag<uint64_t> is_all_trans_mode(parser, "is_all_trans_mode",
+    //                                          "whether to use all transaction mode",
+    //                                          {'a', "all_trans"}, 0);
 
     try {
         parser.ParseCLI(argc, argv);
@@ -61,9 +65,51 @@ int main(int argc, const char **argv) {
         }
     }
 
-    for (uint64_t clk = 0; clk < cycles; clk++) {
-        cpu->ClockTick();
+    bool sim_end = false;
+    bool IsAllTransFinished=false;
+    std::vector<bool> CmdQueueEmpty;
+    std::vector<bool> PendingWrQEmpty;
+    std::vector<bool> PendingRdQEmpty;
+    std::vector<bool> UnifiedQueueEmpty;
+    std::vector<bool> WriteBufferEmpty;
+    std::vector<bool> ReadQueueEmpty;
+    std::vector<bool> ReturnQueueEmpty;
+
+    for(int i=0; i<cpu->getMemorySystem().getDRAMSystem()->total_channels_; i++) {
+      CmdQueueEmpty.push_back(false);
+      PendingWrQEmpty.push_back(false);
+      PendingRdQEmpty.push_back(false);
+      UnifiedQueueEmpty.push_back(false);
+      WriteBufferEmpty.push_back(false);
+      ReadQueueEmpty.push_back(false);
+      ReturnQueueEmpty.push_back(false);
     }
+
+    if(args::get(is_all_trans_mode) == 0) {
+      for (uint64_t clk = 0; clk < cycles; clk++) {
+          cpu->ClockTick();
+      }
+    } else {
+      while(!(sim_end)) {
+        cpu->ClockTick();
+
+        // check queue empty for controllers
+        IsAllTransFinished = cpu->AllTransactionsFinished();
+
+        for(int i = 0; i < cpu->getMemorySystem().getDRAMSystem()->GetControllers().size(); i++) {
+          CmdQueueEmpty[i] = cpu->getMemorySystem().getDRAMSystem()->GetController(i)->GetCommandQueue().QueueEmpty();
+          PendingWrQEmpty[i] = cpu->getMemorySystem().getDRAMSystem()->GetController(i)->GetPendingWriteQueue().empty();
+          PendingRdQEmpty[i] = cpu->getMemorySystem().getDRAMSystem()->GetController(i)->GetPendingReadQueue().empty();
+          UnifiedQueueEmpty[i] = cpu->getMemorySystem().getDRAMSystem()->GetController(i)->GetUnifiedQueue().empty();
+          WriteBufferEmpty[i] = cpu->getMemorySystem().getDRAMSystem()->GetController(i)->GetWriteBuffer().empty();
+          ReadQueueEmpty[i] = cpu->getMemorySystem().getDRAMSystem()->GetController(i)->GetReadQueue().empty();
+          ReturnQueueEmpty[i] = cpu->getMemorySystem().getDRAMSystem()->GetController(i)->GetReturnQueue().empty();
+
+          sim_end = IsAllTransFinished & CmdQueueEmpty[i] & PendingWrQEmpty[i] & PendingRdQEmpty[i] & UnifiedQueueEmpty[i] & WriteBufferEmpty[i] & ReadQueueEmpty[i];
+        }
+      }
+    }
+
     cpu->PrintStats();
 
     delete cpu;

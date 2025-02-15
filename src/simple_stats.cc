@@ -435,7 +435,8 @@ void SimpleStats::UpdateFinalStats() {
     doubles_["ref_energy"] = counters_["num_ref_cmds"] * config_.ref_energy_inc;
     doubles_["refb_energy"] =
         counters_["num_refb_cmds"] * config_.refb_energy_inc;
-
+    
+    
     // vector doubles, update first, then push
     double background_energy = 0.0;
     for (int i = 0; i < config_.ranks; i++) {

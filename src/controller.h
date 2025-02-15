@@ -39,6 +39,17 @@ class Controller {
 
     int channel_id_;
 
+    // TODO : accessors for queues
+    int getChannelId() { return channel_id_; }
+    bool isUnifiedQueue() { return is_unified_queue_; }
+    CommandQueue &GetCommandQueue() { return cmd_queue_; }
+    std::vector<Transaction> &GetUnifiedQueue() { return unified_queue_; }
+    std::vector<Transaction> &GetReadQueue() { return read_queue_; }
+    std::vector<Transaction> &GetWriteBuffer() { return write_buffer_; }
+    std::multimap<uint64_t, Transaction> &GetPendingReadQueue() { return pending_rd_q_; }
+    std::multimap<uint64_t, Transaction> &GetPendingWriteQueue() { return pending_wr_q_; }
+    std::vector<Transaction> &GetReturnQueue() { return return_queue_; }
+
    private:
     uint64_t clk_;
     const Config &config_;
