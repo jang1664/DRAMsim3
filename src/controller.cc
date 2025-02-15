@@ -199,10 +199,13 @@ void Controller::ScheduleTransaction() {
     if (write_draining_ == 0 && !is_unified_queue_) {
         // we basically have a upper and lower threshold for write buffer
         if ((write_buffer_.size() >= write_buffer_.capacity()) ||
-            (write_buffer_.size() > 8 && cmd_queue_.QueueEmpty())) {
+            (write_buffer_.size() > 8 && cmd_queue_.QueueEmpty()) || 
+            (write_buffer_.size() > 0 && pending_rd_q_.size() == 0)) {
             write_draining_ = write_buffer_.size();
         }
     }
+
+    // std::cout << "write_draining: " << write_draining_ << std::endl;
 
     std::vector<Transaction> &queue =
         is_unified_queue_ ? unified_queue_

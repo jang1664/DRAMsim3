@@ -66,7 +66,6 @@ int main(int argc, const char **argv) {
     }
 
     bool sim_end = false;
-    bool IsAllTransFinished=false;
     std::vector<bool> CmdQueueEmpty;
     std::vector<bool> PendingWrQEmpty;
     std::vector<bool> PendingRdQEmpty;
@@ -94,9 +93,13 @@ int main(int argc, const char **argv) {
         cpu->ClockTick();
 
         // check queue empty for controllers
-        IsAllTransFinished = cpu->AllTransactionsFinished();
+        sim_end = cpu->AllTransactionsFinished();
+        // std::cout << "--------------------------------" << std::endl;
+        // std::cout << "all_trans: " << sim_end << std::endl;
 
         for(int i = 0; i < cpu->getMemorySystem().getDRAMSystem()->GetControllers().size(); i++) {
+          // std::cout << "Controller: " << i << std::endl;
+
           CmdQueueEmpty[i] = cpu->getMemorySystem().getDRAMSystem()->GetController(i)->GetCommandQueue().QueueEmpty();
           PendingWrQEmpty[i] = cpu->getMemorySystem().getDRAMSystem()->GetController(i)->GetPendingWriteQueue().empty();
           PendingRdQEmpty[i] = cpu->getMemorySystem().getDRAMSystem()->GetController(i)->GetPendingReadQueue().empty();
@@ -105,7 +108,18 @@ int main(int argc, const char **argv) {
           ReadQueueEmpty[i] = cpu->getMemorySystem().getDRAMSystem()->GetController(i)->GetReadQueue().empty();
           ReturnQueueEmpty[i] = cpu->getMemorySystem().getDRAMSystem()->GetController(i)->GetReturnQueue().empty();
 
-          sim_end = IsAllTransFinished & CmdQueueEmpty[i] & PendingWrQEmpty[i] & PendingRdQEmpty[i] & UnifiedQueueEmpty[i] & WriteBufferEmpty[i] & ReadQueueEmpty[i];
+          // std::cout << "CmdQueueEmpty: " << CmdQueueEmpty[i] << std::endl;
+          // std::cout << "PendingWrQEmpty: " << PendingWrQEmpty[i] << std::endl;
+          // std::cout << "PendingRdQEmpty: " << PendingRdQEmpty[i] << std::endl;
+          // std::cout << "UnifiedQueueEmpty: " << UnifiedQueueEmpty[i] << std::endl;
+          // std::cout << "WriteBufferEmpty: " << WriteBufferEmpty[i] << std::endl;
+          // std::cout << "ReadQueueEmpty: " << ReadQueueEmpty[i] << std::endl;
+          // std::cout << "ReturnQueueEmpty: " << ReturnQueueEmpty[i] << std::endl;
+
+          // std::cout << "WriteBufferSize: " << cpu->getMemorySystem().getDRAMSystem()->GetController(i)->GetWriteBuffer().size() << std::endl;
+          // std::cout << "PendingWrQSize: " << cpu->getMemorySystem().getDRAMSystem()->GetController(i)->GetPendingWriteQueue().size() << std::endl;
+
+          sim_end &= (CmdQueueEmpty[i] & PendingWrQEmpty[i] & PendingRdQEmpty[i] & UnifiedQueueEmpty[i] & WriteBufferEmpty[i] & ReadQueueEmpty[i] & ReturnQueueEmpty[i]);
         }
       }
     }

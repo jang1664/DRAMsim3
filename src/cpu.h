@@ -6,7 +6,6 @@
 #include <random>
 #include <string>
 #include "memory_system.h"
-#include "global_state.h"
 
 namespace dramsim3 {
 
