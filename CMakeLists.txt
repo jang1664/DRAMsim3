@@ -95,6 +95,10 @@ set_target_properties(dramsim3main PROPERTIES
     CXX_STANDARD_REQUIRED YES
     CXX_EXTENSIONS NO
 )
+target_compile_definitions(dramsim3main
+    PRIVATE
+    $<$<CONFIG:Debug>:DEBUG>
+)
 
 # Unit testing
 add_library(Catch INTERFACE)
