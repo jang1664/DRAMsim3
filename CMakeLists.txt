@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0.0)
+cmake_minimum_required(VERSION 3.10)
 project(dramsim3)
 
 set(default_build_type "Release")
@@ -119,5 +119,4 @@ add_custom_command(
     TARGET dramsim3test POST_BUILD
     COMMAND dramsim3test
     WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
-    DEPENDS dramsim3test dramsim3
 )
